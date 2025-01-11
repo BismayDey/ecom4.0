@@ -1,101 +1,195 @@
+"use client";
+
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { products } from "@/lib/products";
+import { useCart } from "@/lib/useCart";
 import Image from "next/image";
+import Link from "next/link";
+import { Star, Heart, ShoppingCart, Percent, Zap, Check } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const featuredProducts = products
+    .filter((p) => p.newArrival || p.discount)
+    .slice(0, 8);
+  const { addToCart, addToWishlist } = useCart();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const categories = Array.from(new Set(products.map((p) => p.category)));
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-12 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-8"
+        >
+          <h1 className="text-4xl font-bold mb-4">Welcome to TechBazaar</h1>
+          <p className="text-xl mb-6">
+            Discover cutting-edge technology and premium products.
+          </p>
+          <Link href="/products">
+            <Button size="lg" variant="secondary">
+              Explore Now
+            </Button>
+          </Link>
+        </motion.section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-6">Featured Categories</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((category, index) => (
+              <motion.div
+                key={category}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <Link href={`/products?category=${category}`}>
+                  <div className="bg-gray-100 rounded-lg p-4 text-center hover:bg-gray-200 transition-colors">
+                    <h3 className="font-semibold">{category}</h3>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-6">Featured Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card className="flex flex-col h-full">
+                  <Link href={`/products/${product.id}`}>
+                    <div className="relative">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={300}
+                        height={300}
+                        className="w-full h-48 object-cover rounded-t-lg"
+                      />
+                      {product.discount && (
+                        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                          <Percent size={14} className="inline mr-1" />
+                          {product.discount}% OFF
+                        </span>
+                      )}
+                      {product.newArrival && (
+                        <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                          <Zap size={14} className="inline mr-1" />
+                          NEW
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                  <CardContent className="flex-grow">
+                    <Link href={`/products/${product.id}`}>
+                      <h3 className="text-lg font-semibold">{product.name}</h3>
+                    </Link>
+                    <p className="text-gray-600 mb-2">
+                      ₹{product.price.toLocaleString()}
+                      {product.discount && (
+                        <span className="ml-2 text-sm line-through text-gray-400">
+                          ₹
+                          {Math.round(
+                            product.price / (1 - product.discount / 100)
+                          ).toLocaleString()}
+                        </span>
+                      )}
+                    </p>
+                    <div className="flex items-center mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={`star-${product.id}-${i}`}
+                          className={
+                            i < Math.floor(product.rating)
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }
+                          size={16}
+                        />
+                      ))}
+                      <span className="ml-2 text-sm text-gray-600">
+                        ({product.reviews.length})
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      {product.description.slice(0, 100)}...
+                    </p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <Button onClick={() => addToCart(product)}>
+                      <ShoppingCart size={20} className="mr-2" /> Add to Cart
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => addToWishlist(product)}
+                    >
+                      <Heart size={20} />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-12 bg-gray-100 rounded-lg p-8"
+        >
+          <h2 className="text-2xl font-semibold mb-6">
+            Why Choose TechBazaar?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="pt-6">
+                <Check size={48} className="text-green-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Quality Assured</h3>
+                <p>
+                  All our products are carefully selected and quality checked to
+                  ensure customer satisfaction.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <ShoppingCart size={48} className="text-blue-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Fast Shipping</h3>
+                <p>
+                  We offer quick and reliable shipping options to get your
+                  products to you as soon as possible.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <Heart size={48} className="text-red-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Customer First</h3>
+                <p>
+                  Our dedicated support team is always ready to assist you with
+                  any queries or concerns.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </motion.section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }
